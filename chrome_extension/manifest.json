@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Korail Macro Config",
+  "version": "1.0.0",
+  "description": "Edit Korail cancel ticket macro config.ini from a Chrome popup.",
+  "action": {
+    "default_title": "Korail Macro",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["storage", "downloads", "nativeMessaging"]
+}

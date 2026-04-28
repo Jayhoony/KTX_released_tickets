@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Korail Macro</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main class="panel">
+      <header class="topbar">
+        <div>
+          <h1>Korail Macro</h1>
+          <p>취소표 설정</p>
+        </div>
+        <span class="status" id="status">준비</span>
+      </header>
+
+      <section class="grid two">
+        <label>
+          출발
+          <input id="dep" list="stations" value="서울">
+        </label>
+        <label>
+          도착
+          <input id="arr" list="stations" value="부산">
+        </label>
+      </section>
+
+      <section class="account-box">
+        <label>
+          코레일 ID
+          <input id="korailId" autocomplete="username" placeholder="회원번호/이메일/전화번호">
+        </label>
+        <label>
+          비밀번호
+          <input id="korailPassword" type="password" autocomplete="current-password" placeholder="코레일 비밀번호">
+        </label>
+      </section>
+
+      <section class="grid two">
+        <label>
+          날짜
+          <input id="date" type="date">
+        </label>
+        <label>
+          시간
+          <input id="time" type="time" step="60">
+        </label>
+      </section>
+
+      <section class="grid two">
+        <label>
+          열차
+          <select id="trainType">
+            <option value="KTX">KTX</option>
+            <option value="ALL">전체</option>
+            <option value="KTX_SANCHEON">KTX-산천</option>
+            <option value="ITX_SAEMAEUL">ITX-새마을</option>
+            <option value="MUGUNGHWA">무궁화</option>
+            <option value="ITX_CHEONGCHUN">ITX-청춘</option>
+          </select>
+        </label>
+        <label>
+          예약옵션
+          <select id="reserveOption">
+            <option value="GENERAL_ONLY">일반실만</option>
+            <option value="GENERAL_FIRST">일반실 우선</option>
+            <option value="SPECIAL_ONLY">특실만</option>
+            <option value="SPECIAL_FIRST">특실 우선</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="grid two">
+        <label>
+          빠른 출발
+          <input id="earliestTime" type="time" step="60">
+        </label>
+        <label>
+          늦은 출발
+          <input id="latestTime" type="time" step="60">
+        </label>
+      </section>
+
+      <label>
+        열차번호
+        <input id="trainNumbers" placeholder="예: 101,123">
+      </label>
+
+      <section class="passengers">
+        <label>
+          어른
+          <input id="adults" type="number" min="0" max="9" value="1">
+        </label>
+        <label>
+          어린이
+          <input id="children" type="number" min="0" max="9" value="0">
+        </label>
+        <label>
+          유아
+          <input id="toddlers" type="number" min="0" max="9" value="0">
+        </label>
+        <label>
+          경로
+          <input id="seniors" type="number" min="0" max="9" value="0">
+        </label>
+      </section>
+
+      <section class="grid two compact">
+        <label>
+          반복 간격
+          <input id="intervalSeconds" type="number" min="5" max="300" value="12">
+        </label>
+        <label>
+          최대 시도
+          <input id="maxAttempts" type="number" min="0" max="9999" value="0">
+        </label>
+      </section>
+
+      <section class="toggles">
+        <label>
+          <input id="reserveWhenFound" type="checkbox" checked>
+          좌석 발견 시 예약
+        </label>
+        <label>
+          <input id="includeWaitingList" type="checkbox">
+          예약대기 포함
+        </label>
+        <label>
+          <input id="beep" type="checkbox" checked>
+          알림음
+        </label>
+      </section>
+
+      <div class="actions">
+        <button id="saveState" type="button">저장</button>
+        <button id="downloadIni" type="button" class="primary">config.ini 저장</button>
+      </div>
+      <button id="runMacro" type="button" class="run">매크로 실행</button>
+
+      <datalist id="stations">
+        <option value="서울"></option>
+        <option value="용산"></option>
+        <option value="영등포"></option>
+        <option value="광명"></option>
+        <option value="수원"></option>
+        <option value="천안아산"></option>
+        <option value="오송"></option>
+        <option value="대전"></option>
+        <option value="김천구미"></option>
+        <option value="동대구"></option>
+        <option value="신경주"></option>
+        <option value="울산"></option>
+        <option value="부산"></option>
+        <option value="익산"></option>
+        <option value="전주"></option>
+        <option value="광주송정"></option>
+        <option value="목포"></option>
+        <option value="강릉"></option>
+      </datalist>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>

@@ -1,0 +1,9 @@
+﻿{
+    "path":  "C:\\Users\\SJH\\Documents\\GitHub\\KTX_released_tickets\\native_host\\native_host_launcher.cmd",
+    "description":  "Korail macro native launcher",
+    "name":  "com.ktx_released_tickets.macro",
+    "allowed_origins":  [
+                            "chrome-extension://hnplmkclbeonoehgffdimebggcmahbam/"
+                        ],
+    "type":  "stdio"
+}
