@@ -109,6 +109,7 @@
         <label>
           예약옵션
           <select id="reserveOption">
+            <option value="GENERAL_SPECIAL">일반+특실</option>
             <option value="GENERAL_ONLY">일반실만</option>
             <option value="GENERAL_FIRST">일반실 우선</option>
             <option value="SPECIAL_ONLY">특실만</option>
@@ -122,10 +123,7 @@
           <strong>실행할 열차</strong>
           <button id="searchTrains" type="button">열차 조회</button>
         </div>
-        <label>
-          열차번호
-          <input id="trainNumbers" placeholder="예: 101,123">
-        </label>
+        <input id="trainNumbers" type="hidden">
         <div id="trainList" class="train-list">조회한 열차가 없습니다.</div>
       </section>
 
@@ -151,7 +149,7 @@
       <section class="grid two compact">
         <label>
           반복 간격
-          <input id="intervalSeconds" type="number" min="1" max="300" value="1">
+          <input id="intervalSeconds" type="number" min="5" max="300" value="12">
         </label>
         <label>
           최대 시도

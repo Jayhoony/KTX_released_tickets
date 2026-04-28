@@ -10,6 +10,9 @@ from pathlib import Path
 
 HOST_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = HOST_DIR.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 RUN_SCRIPT = PROJECT_ROOT / "run_macro.ps1"
 CONFIG_PATH = PROJECT_ROOT / "config.ini"
 LOG_PATH = PROJECT_ROOT / "macro.log"

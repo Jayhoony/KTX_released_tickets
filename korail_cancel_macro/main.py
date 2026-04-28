@@ -40,6 +40,8 @@ TRAIN_TYPES = {
 }
 
 RESERVE_OPTIONS = {
+    "GENERAL_SPECIAL": ReserveOption.GENERAL_FIRST,
+    "BOTH": ReserveOption.GENERAL_FIRST,
     "GENERAL_FIRST": ReserveOption.GENERAL_FIRST,
     "GENERAL_ONLY": ReserveOption.GENERAL_ONLY,
     "SPECIAL_FIRST": ReserveOption.SPECIAL_FIRST,
@@ -323,7 +325,9 @@ def notify(config: NotificationConfig) -> None:
 
 def sleep_between_attempts(config: MacroConfig) -> None:
     jitter = random.uniform(0, config.jitter_seconds) if config.jitter_seconds > 0 else 0
-    time.sleep(config.interval_seconds + jitter)
+    delay = config.interval_seconds + jitter
+    print(f"{delay:.1f}초 후 재시도합니다.", flush=True)
+    time.sleep(delay)
 
 
 def run(config: AppConfig) -> int:

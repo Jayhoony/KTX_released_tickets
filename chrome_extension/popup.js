@@ -43,13 +43,13 @@ const defaults = {
   date: "",
   time: "09:00",
   trainType: "KTX",
-  reserveOption: "GENERAL_ONLY",
+  reserveOption: "GENERAL_SPECIAL",
   trainNumbers: "",
   adults: "1",
   children: "0",
   toddlers: "0",
   seniors: "0",
-  intervalSeconds: "1",
+  intervalSeconds: "12",
   maxAttempts: "0",
   reserveWhenFound: true,
   includeWaitingList: false,
@@ -150,12 +150,12 @@ toddlers = ${numberValue(data.toddlers, "0")}
 seniors = ${numberValue(data.seniors, "0")}
 
 [macro]
-interval_seconds = ${numberValue(data.intervalSeconds, "1")}
+interval_seconds = ${numberValue(data.intervalSeconds, "12")}
 jitter_seconds = 3
 max_attempts = ${numberValue(data.maxAttempts, "0")}
 login_max_attempts = 3
 reserve_when_found = ${data.reserveWhenFound ? "true" : "false"}
-reserve_option = ${data.reserveOption || "GENERAL_ONLY"}
+reserve_option = ${data.reserveOption || "GENERAL_SPECIAL"}
 include_waiting_list = ${waiting}
 try_waiting = ${waiting}
 auto_payment = ${data.autoPayment ? "true" : "false"}
@@ -429,3 +429,4 @@ async function init() {
 }
 
 init();
+
