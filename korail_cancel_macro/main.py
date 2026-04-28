@@ -194,6 +194,10 @@ def validate_config(config: AppConfig) -> None:
 
 
 def ask_credentials(config: AppConfig, *, force_prompt: bool = False) -> AppConfig:
+    noninteractive = parse_bool(os.environ.get("KORAIL_NONINTERACTIVE", "false"))
+    if noninteractive and (force_prompt or not config.account.korail_id or not config.account.korail_pw):
+        raise ValueError("GUI 실행에서는 코레일 ID와 비밀번호를 입력해야 합니다.")
+
     if force_prompt:
         korail_id = input("코레일 ID/회원번호/전화번호/이메일: ").strip()
         korail_pw = masked_password_input("코레일 비밀번호: ")

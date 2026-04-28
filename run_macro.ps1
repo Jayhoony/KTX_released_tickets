@@ -3,11 +3,18 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+$OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+$env:PYTHONUTF8 = "1"
+$env:PYTHONIOENCODING = "utf-8"
+chcp 65001 | Out-Null
 
 $ProjectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $VenvPython = Join-Path $ProjectRoot ".venv\Scripts\python.exe"
 $ConfigPath = Join-Path $ProjectRoot "config.ini"
 $ExampleConfigPath = Join-Path $ProjectRoot "config.example.ini"
+$RequirementsPath = Join-Path $ProjectRoot "requirements.txt"
+$RequirementsStampPath = Join-Path $ProjectRoot ".venv\requirements.sha256"
 
 Set-Location $ProjectRoot
 
@@ -58,11 +65,28 @@ if (!(Test-Path $VenvPython)) {
     Invoke-SystemPython $PythonCommand -m venv .venv
 }
 
-Write-Host "Checking packages..."
-& $VenvPython -m pip install --upgrade --force-reinstall -r requirements.txt
+$CurrentRequirementsHash = (Get-FileHash $RequirementsPath -Algorithm SHA256).Hash
+$InstalledRequirementsHash = ""
+if (Test-Path $RequirementsStampPath) {
+    $InstalledRequirementsHash = (Get-Content $RequirementsStampPath -Raw).Trim()
+}
+
+if ($CurrentRequirementsHash -ne $InstalledRequirementsHash) {
+    Write-Host "Installing packages..."
+    & $VenvPython -m pip install --upgrade -r requirements.txt
+    if ($LASTEXITCODE -ne 0) {
+        exit $LASTEXITCODE
+    }
+    Set-Content -Path $RequirementsStampPath -Value $CurrentRequirementsHash -Encoding ASCII
+} else {
+    Write-Host "Packages are already installed."
+}
 
 Write-Host "Running macro..."
-& $VenvPython -m korail_cancel_macro.main --config config.ini
+if ($NonInteractive) {
+    $env:KORAIL_NONINTERACTIVE = "1"
+}
+& $VenvPython -u -m korail_cancel_macro.main --config config.ini
 
 Write-Host ""
 if (!$NonInteractive) {

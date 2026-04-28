@@ -65,7 +65,7 @@ python -m korail_cancel_macro.main --config config.ini
 C:\Users\SJH\Documents\GitHub\KTX_released_tickets\chrome_extension
 ```
 
-확장 아이콘을 누르면 코레일 ID/비밀번호, 날짜, 시간, 출발역, 도착역, 인원, 예약 옵션을 바꿀 수 있습니다. `config.ini 저장` 버튼을 누르면 `config.ini` 파일이 생성되며, 이 파일을 프로젝트 루트의 `config.ini`로 저장하거나 덮어쓴 뒤 매크로를 실행하면 됩니다.
+확장 아이콘을 누르면 코레일 ID/비밀번호, 날짜, 시간, 출발역, 도착역, 인원, 예약 옵션을 바꿀 수 있습니다. `설정 저장` 버튼을 누르면 프로젝트 루트의 `config.ini`에 바로 반영됩니다.
 
 주의: 확장 팝업에 입력한 비밀번호는 이 PC의 크롬 저장소와 `config.ini`에 평문으로 저장됩니다. 공용 PC에서는 비밀번호를 비워두고 실행 시 터미널에서 입력하세요.
 
@@ -81,6 +81,17 @@ cd C:\Users\SJH\Documents\GitHub\KTX_released_tickets
 .\install_native_host.ps1 -ExtensionId "복사한_확장_ID"
 ```
 
-이후 확장 팝업에서 `매크로 실행`을 누르면 현재 팝업 값을 `config.ini`에 저장한 뒤 백그라운드에서 매크로를 실행합니다. 실행 로그는 팝업 아래의 `실행 로그` 영역에 표시됩니다. 처음 실행 시 가상환경과 패키지를 자동으로 확인합니다.
+이후 확장 팝업에서 `실행`을 누르면 현재 팝업 값을 `config.ini`에 저장한 뒤 백그라운드에서 매크로를 실행합니다. `멈춤`을 누르면 실행 중인 매크로 프로세스를 종료합니다. 실행 로그는 팝업 아래의 `실행 로그` 영역에 표시됩니다. 처음 실행 시 가상환경과 패키지를 자동으로 확인합니다.
 
 확장 없이 바로 실행하려면 `run_macro.bat`을 더블클릭해도 됩니다.
+
+### 실행이 계속 도는 것 같을 때
+
+이전 백그라운드 실행을 모두 정리하려면:
+
+```powershell
+cd C:\Users\SJH\Documents\GitHub\KTX_released_tickets
+powershell -ExecutionPolicy Bypass -File .\stop_all_macro.ps1
+```
+
+그 다음 `chrome://extensions`에서 확장을 새로고침하고 다시 실행하세요.

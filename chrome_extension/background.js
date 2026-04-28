@@ -1,5 +1,5 @@
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (!["runMacro", "readLog", "clearLog"].includes(message?.action)) {
+  if (!["saveConfig", "runMacro", "stopMacro", "readLog", "clearLog"].includes(message?.action)) {
     return false;
   }
 
@@ -22,11 +22,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
     });
 
-    if (message.action === "runMacro") {
+    if (message.action === "saveConfig") {
       port.postMessage({
-        action: "run",
+        action: "saveConfig",
         configIni: message.configIni || "",
       });
+    } else if (message.action === "runMacro") {
+      port.postMessage({
+        action: "run",
+      });
+    } else if (message.action === "stopMacro") {
+      port.postMessage({ action: "stop" });
     } else if (message.action === "readLog") {
       port.postMessage({ action: "readLog" });
     } else {

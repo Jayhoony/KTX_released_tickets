@@ -139,39 +139,45 @@ beep = ${data.beep ? "true" : "false"}
 `;
 }
 
-async function saveState() {
-  await chrome.storage.local.set(readForm());
-  setStatus("저장됨");
-}
-
-async function downloadIni() {
+async function saveConfig() {
   const data = readForm();
   await chrome.storage.local.set(data);
-  const blob = new Blob([buildIni(data)], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  await chrome.downloads.download({
-    url,
-    filename: "config.ini",
-    saveAs: true,
-    conflictAction: "overwrite",
+  const response = await chrome.runtime.sendMessage({
+    action: "saveConfig",
+    configIni: buildIni(data),
   });
-  setStatus("완료");
+  if (!response?.ok) {
+    setStatus("실패");
+    alert(response?.error || "설정 저장에 실패했습니다.");
+    return false;
+  }
+  setStatus("저장됨");
+  return true;
 }
 
 async function runMacro() {
-  const data = readForm();
-  await chrome.storage.local.set(data);
+  const saved = await saveConfig();
+  if (!saved) return;
   await chrome.runtime.sendMessage({ action: "clearLog" });
-  const response = await chrome.runtime.sendMessage({
-    action: "runMacro",
-    configIni: buildIni(data),
-  });
+  const response = await chrome.runtime.sendMessage({ action: "runMacro" });
   if (response?.ok) {
     setStatus("실행됨");
+    await refreshLog();
     return;
   }
-  setStatus("설정필요");
+  setStatus("실패");
   alert(response?.error || "Native host가 설치되지 않았습니다. install_native_host.ps1을 먼저 실행하세요.");
+}
+
+async function stopMacro() {
+  const response = await chrome.runtime.sendMessage({ action: "stopMacro" });
+  if (response?.ok) {
+    setStatus("멈춤");
+    await refreshLog();
+    return;
+  }
+  setStatus("실패");
+  alert(response?.error || "매크로를 멈추지 못했습니다.");
 }
 
 async function refreshLog() {
@@ -194,9 +200,9 @@ async function clearLog() {
 async function init() {
   const stored = await chrome.storage.local.get(fields);
   writeForm({ ...defaults, date: todayIso(), ...stored });
-  $("saveState").addEventListener("click", saveState);
-  $("downloadIni").addEventListener("click", downloadIni);
+  $("saveConfig").addEventListener("click", saveConfig);
   $("runMacro").addEventListener("click", runMacro);
+  $("stopMacro").addEventListener("click", stopMacro);
   $("refreshLog").addEventListener("click", refreshLog);
   $("clearLog").addEventListener("click", clearLog);
   window.setInterval(refreshLog, 2500);
@@ -204,3 +210,4 @@ async function init() {
 }
 
 init();
+

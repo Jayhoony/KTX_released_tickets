@@ -137,7 +137,7 @@ select:focus {
 
 .actions {
   display: grid;
-  grid-template-columns: 1fr 1.35fr;
+  grid-template-columns: 1.25fr 0.9fr 0.9fr;
   gap: 8px;
 }
 
@@ -168,8 +168,6 @@ button.primary:hover {
 }
 
 button.run {
-  width: 100%;
-  margin-top: 8px;
   border-color: #111827;
   background: #111827;
   color: #ffffff;
@@ -177,6 +175,17 @@ button.run {
 
 button.run:hover {
   background: #263244;
+}
+
+button.danger {
+  border-color: #c93535;
+  background: #c93535;
+  color: #ffffff;
+}
+
+button.danger:hover {
+  border-color: #a92828;
+  background: #a92828;
 }
 
 .log-panel {
