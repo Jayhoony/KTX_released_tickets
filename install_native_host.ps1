@@ -42,7 +42,22 @@ function Invoke-SystemPython {
     }
 }
 
-if (!(Test-Path $VenvPython)) {
+function Test-VenvPython {
+    if (!(Test-Path $VenvPython)) {
+        return $false
+    }
+
+    & $VenvPython --version *> $null
+    return ($LASTEXITCODE -eq 0)
+}
+
+if (!(Test-VenvPython)) {
+    $VenvDir = Join-Path $ProjectRoot ".venv"
+    if (Test-Path $VenvDir) {
+        Write-Host "Virtual environment is broken. Recreating..."
+        Remove-Item -LiteralPath $VenvDir -Recurse -Force
+    }
+
     $PythonCommand = Get-SystemPython
     if ($null -eq $PythonCommand) {
         Write-Host "ERROR: Python was not found."
@@ -54,6 +69,9 @@ if (!(Test-Path $VenvPython)) {
     Write-Host "Creating virtual environment..."
     Invoke-SystemPython $PythonCommand -m venv .venv
 }
+
+Write-Host "Installing packages..."
+& $VenvPython -m pip install -r requirements.txt
 
 $manifest = @{
     name = "com.ktx_released_tickets.macro"

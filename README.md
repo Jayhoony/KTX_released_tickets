@@ -1,6 +1,6 @@
 # Korail Cancel Ticket Macro
 
-`korail2` API를 이용해 코레일 취소표를 반복 조회하고, 좌석이 생기면 예약을 시도하는 파이썬 매크로입니다. 크롬 확장 팝업으로 설정을 바꾸고 실행 로그를 확인할 수 있습니다.
+`korail2` API를 이용해 코레일 취소표를 반복 조회하고, 좌석이 생기면 예약을 시도하는 Python 매크로입니다. Chrome 확장 팝업에서 설정을 바꾸고 실행 로그를 확인할 수 있습니다.
 
 참고 API: [dhfhfk/korail2 bypassDynapath](https://github.com/dhfhfk/korail2/tree/bypassDynapath)
 
@@ -8,18 +8,17 @@
 
 이 프로젝트는 교육 및 개인 학습 목적의 예제입니다. 코레일 또는 관련 서비스의 공식 도구가 아니며, 사용자는 코레일 이용약관과 관련 법령을 직접 확인하고 준수해야 합니다.
 
-- 상업적 목적, 재판매, 대행 예약, 대량 예약, 서비스 방해 목적의 사용을 금지합니다.
-- 과도한 반복 조회나 자동 예약 시도는 계정 제한, 접속 차단, 예약 취소 등의 불이익으로 이어질 수 있습니다.
-- 본 도구 사용으로 발생하는 계정 제한, 결제 문제, 예약 실패, 약관 위반, 법적 책임은 사용자 본인에게 있습니다.
+- 상업적 목적, 재판매, 대량 예약, 부정 예약, 서비스 방해 목적의 사용을 금지합니다.
+- 과도한 반복 조회는 계정 제한, 접속 차단, 예약 취소 등 불이익으로 이어질 수 있습니다.
+- 이 도구 사용으로 발생하는 계정 제한, 결제 문제, 예약 실패, 약관 위반, 법적 책임은 사용자 본인에게 있습니다.
 - 캡차, 본인인증, 결제 인증 등 보안 절차를 우회하지 않습니다.
-- 예약 성공 후 결제와 발권은 반드시 사용자가 직접 확인하고 진행해야 합니다.
+- 예약 성공 후 결제와 발권은 사용자가 직접 확인하고 진행해야 합니다.
 
-## 동작 방식
+## 결제정보 저장 방식
 
-1. 코레일 계정으로 API 로그인합니다.
-2. 설정한 출발역, 도착역, 날짜, 시간, 열차종류로 반복 조회합니다.
-3. 일반실/특실 좌석이 생기면 `korail.reserve(...)`로 예약합니다.
-4. 예약 성공 후 결제/발권은 코레일 앱 또는 웹에서 직접 진행합니다.
+참고한 `winwx/ktx-srt-macro` 프로젝트처럼 민감정보는 `keyring`을 통해 운영체제 자격 증명 저장소에 저장합니다. Windows에서는 Windows Credential Manager에 저장되며, `config.ini`에는 카드번호나 카드 비밀번호를 쓰지 않습니다.
+
+Chrome 팝업에서 `예약 성공 시 자동결제`를 켜면 예약 성공 직후 저장된 카드정보로 결제를 시도합니다. 이 옵션은 실제 결제가 발생할 수 있으므로 본인 카드와 본인 계정에서만 사용하세요. 옵션을 끄면 예약만 진행하고 결제/발권은 코레일 앱 또는 웹에서 직접 진행합니다.
 
 ## 설치
 
@@ -31,6 +30,8 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
+Git이 없어도 설치되도록 `requirements.txt`는 GitHub zip 주소를 사용합니다.
+
 ## 설정 파일
 
 ```powershell
@@ -40,23 +41,17 @@ notepad config.ini
 
 `config.ini`는 개인 설정 파일입니다. 배포하거나 커밋하지 마세요.
 
-중요 설정:
+주요 설정:
 
 - `dep`, `arr`: 역 이름을 한글로 입력합니다. 예: `서울`, `부산`
 - `date`: `yyyyMMdd`
 - `time`: `hhmmss`
 - `train_type`: `KTX`, `ALL`, `ITX_SAEMAEUL`, `MUGUNGHWA` 등
 - `train_numbers`: 특정 열차번호만 예약하려면 쉼표로 입력합니다.
+- `earliest_time`, `latest_time`: 조회 결과 중 출발시간 범위를 제한합니다.
 - `reserve_option`: `GENERAL_ONLY`, `GENERAL_FIRST`, `SPECIAL_ONLY`, `SPECIAL_FIRST`
-- `reserve_when_found`: `false`로 두면 발견 알림만 하고 예약하지 않습니다.
-- `interval_seconds = 1`, `jitter_seconds = 3`: 조회/예약 실패 후 1~4초 사이 랜덤 간격으로 재시도합니다.
-
-계정 정보는 `config.ini`에 적지 않고 실행 시 터미널에서 입력해도 됩니다. 환경변수를 쓰려면:
-
-```powershell
-$env:KORAIL_ID="회원번호 또는 이메일 또는 전화번호"
-$env:KORAIL_PASSWORD="비밀번호"
-```
+- `interval_seconds = 1`, `jitter_seconds = 3`: 1~4초 사이 랜덤 간격으로 다시 조회합니다.
+- `auto_payment`: `true`이면 예약 성공 직후 저장된 결제정보로 자동결제를 시도합니다.
 
 ## 실행
 
@@ -64,44 +59,41 @@ $env:KORAIL_PASSWORD="비밀번호"
 python -m korail_cancel_macro.main --config config.ini
 ```
 
-예약에 성공하면 예약 내역과 구매기한이 출력됩니다. 구매기한 안에 코레일 앱 또는 웹에서 결제를 완료하세요.
+비밀번호를 터미널에서 입력하면 `*`로 표시됩니다. Chrome GUI의 보안 저장을 켜면 로그인 정보는 Windows 자격 증명 저장소에서 불러옵니다.
 
-## 크롬 확장 GUI
+## Chrome 확장 GUI
 
-1. 크롬 주소창에 `chrome://extensions`를 입력합니다.
+1. Chrome 주소창에 `chrome://extensions`를 입력합니다.
 2. 오른쪽 위 `개발자 모드`를 켭니다.
 3. `압축해제된 확장 프로그램을 로드합니다`를 누릅니다.
 4. 이 프로젝트의 `chrome_extension` 폴더를 선택합니다.
 
-확장 아이콘을 누르면 코레일 ID/비밀번호, 날짜, 시간, 출발역, 도착역, 인원, 예약 옵션을 바꿀 수 있습니다. `설정 저장` 버튼을 누르면 프로젝트 루트의 `config.ini`에 바로 반영됩니다.
+팝업에서 출발/도착, 날짜, 시간, 승객, 반복 간격, 로그인, 결제정보를 입력할 수 있습니다. `열차 조회`를 누르면 현재 날짜/시간 조건으로 열차 목록을 불러오고, 체크한 열차번호만 `train_numbers`에 반영됩니다. `설정 저장`은 `config.ini` 저장과 보안 저장소 저장을 한 번에 처리합니다. 자동결제를 쓰려면 `결제정보 보안 저장`과 `예약 성공 시 자동결제`를 함께 켜야 합니다.
 
-주의: 확장 팝업에 입력한 비밀번호는 이 PC의 크롬 저장소와 `config.ini`에 평문으로 저장됩니다. 공용 PC에서는 비밀번호를 비워두고 실행 시 터미널에서 입력하세요.
+## Native Host 등록
 
-### 확장에서 바로 실행하기
+확장 팝업에서 `실행`, `멈춤`, 로그 표시를 쓰려면 Native Messaging host를 등록해야 합니다.
 
-크롬 확장 팝업의 `실행` 버튼까지 쓰려면 Native Messaging host를 한 번 등록해야 합니다.
-
-1. `chrome://extensions`에서 방금 로드한 확장의 ID를 복사합니다.
-2. PowerShell에서 아래 명령을 실행합니다.
-
-```powershell
-.\install_native_host.ps1 -ExtensionId "복사한_확장_ID"
-```
-
-PowerShell 실행 정책 때문에 막히면:
+프로젝트 루트에서 실행:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\install_native_host.ps1 -ExtensionId "복사한_확장_ID"
 ```
 
-이후 확장 팝업에서:
+만약 현재 위치가 `C:\Windows\system32`라면 먼저 이동하거나 전체 경로를 쓰세요.
 
-- `설정 저장`: 현재 팝업 값을 `config.ini`에 저장
-- `실행`: 현재 설정을 저장한 뒤 백그라운드에서 매크로 실행
-- `멈춤`: 실행 중인 매크로 프로세스 종료
-- `지우기`: 로그 화면 지우기
+```powershell
+cd C:\Users\사용자명\Documents\GitHub\KTX_released_tickets
+powershell -ExecutionPolicy Bypass -File .\install_native_host.ps1 -ExtensionId "복사한_확장_ID"
+```
 
-팝업을 닫아도 매크로는 계속 실행됩니다. 중지하려면 `멈춤`을 누르세요.
+또는:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "C:\Users\사용자명\Documents\GitHub\KTX_released_tickets\install_native_host.ps1" -ExtensionId "복사한_확장_ID"
+```
+
+등록 후 Chrome 확장 관리 화면에서 확장을 새로고침하고 팝업을 다시 열어 실행하세요.
 
 ## 문제 해결
 
@@ -111,7 +103,7 @@ powershell -ExecutionPolicy Bypass -File .\install_native_host.ps1 -ExtensionId 
 powershell -ExecutionPolicy Bypass -File .\stop_all_macro.ps1
 ```
 
-그 다음 `chrome://extensions`에서 확장을 새로고침하고 다시 실행하세요.
+한글 로그가 깨져 보이면 팝업에서 로그를 지우고 다시 실행하세요. 새 실행은 UTF-8 로그로 기록됩니다.
 
 ## 배포 전 체크리스트
 
@@ -123,4 +115,3 @@ powershell -ExecutionPolicy Bypass -File .\stop_all_macro.ps1
 - `macro.pid`
 - `native_host/com.ktx_released_tickets.macro.json`
 - `__pycache__/`
-

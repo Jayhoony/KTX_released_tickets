@@ -16,7 +16,7 @@
 body {
   margin: 0;
   width: 360px;
-  min-height: 520px;
+  min-height: 620px;
   color: var(--text);
   background: var(--bg);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -76,7 +76,7 @@ label {
   font-weight: 650;
 }
 
-.account-box {
+.secure-box {
   display: grid;
   gap: 8px;
   margin: 0 0 10px;
@@ -84,6 +84,54 @@ label {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--panel);
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.section-head strong {
+  font-size: 13px;
+}
+
+.inline-check {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 22px;
+  color: #2c3a43;
+  font-weight: 650;
+}
+
+.inline-check input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.payment-warning {
+  margin-top: -2px;
+  color: #9f2717;
+}
+
+.train-picker {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 10px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.train-picker .section-head button {
+  width: auto;
+  height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
 }
 
 input,
@@ -133,6 +181,51 @@ select:focus {
   width: 16px;
   height: 16px;
   margin: 0;
+}
+
+.train-list {
+  display: grid;
+  gap: 6px;
+  max-height: 190px;
+  overflow: auto;
+  padding: 7px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #f9fbfc;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.train-item {
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  gap: 4px 8px;
+  align-items: center;
+  padding: 7px;
+  border: 1px solid #e4ebef;
+  border-radius: 6px;
+  background: #ffffff;
+  color: var(--text);
+  font-weight: 650;
+}
+
+.train-item input {
+  grid-row: span 2;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.train-main,
+.train-seats {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.train-seats {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
 }
 
 .actions {

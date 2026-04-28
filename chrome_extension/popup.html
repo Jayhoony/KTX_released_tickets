@@ -27,7 +27,14 @@
         </label>
       </section>
 
-      <section class="account-box">
+      <section class="secure-box">
+        <div class="section-head">
+          <strong>로그인</strong>
+          <label class="inline-check">
+            <input id="saveLoginSecure" type="checkbox" checked>
+            보안 저장
+          </label>
+        </div>
         <label>
           코레일 ID
           <input id="korailId" autocomplete="username" placeholder="회원번호/이메일/전화번호">
@@ -35,6 +42,44 @@
         <label>
           비밀번호
           <input id="korailPassword" type="password" autocomplete="current-password" placeholder="코레일 비밀번호">
+        </label>
+      </section>
+
+      <section class="secure-box">
+        <div class="section-head">
+          <strong>결제정보</strong>
+          <label class="inline-check">
+            <input id="savePaymentSecure" type="checkbox">
+            보안 저장
+          </label>
+        </div>
+        <section class="grid two">
+          <label>
+            카드번호
+            <input id="cardNumber" inputmode="numeric" autocomplete="off" maxlength="19" placeholder="숫자만">
+          </label>
+          <label>
+            카드 비밀번호
+            <input id="cardPassword" type="password" inputmode="numeric" autocomplete="off" maxlength="2" placeholder="앞 2자리">
+          </label>
+        </section>
+        <section class="grid two">
+          <label>
+            유효기간
+            <input id="cardExpire" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="YYMM">
+          </label>
+          <label>
+            인증번호
+            <input id="cardValidation" type="password" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="생년월일/사업자번호">
+          </label>
+        </section>
+        <label class="inline-check">
+          <input id="cardCorporate" type="checkbox">
+          법인카드
+        </label>
+        <label class="inline-check payment-warning">
+          <input id="autoPayment" type="checkbox">
+          예약 성공 시 자동결제
         </label>
       </section>
 
@@ -83,10 +128,17 @@
         </label>
       </section>
 
-      <label>
-        열차번호
-        <input id="trainNumbers" placeholder="예: 101,123">
-      </label>
+      <section class="train-picker">
+        <div class="section-head">
+          <strong>실행할 열차</strong>
+          <button id="searchTrains" type="button">열차 조회</button>
+        </div>
+        <label>
+          열차번호
+          <input id="trainNumbers" placeholder="예: 101,123">
+        </label>
+        <div id="trainList" class="train-list">조회한 열차가 없습니다.</div>
+      </section>
 
       <section class="passengers">
         <label>

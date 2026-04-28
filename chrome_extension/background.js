@@ -1,5 +1,15 @@
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (!["saveConfig", "runMacro", "stopMacro", "readLog", "clearLog"].includes(message?.action)) {
+  const allowedActions = [
+    "saveConfig",
+    "saveCredentials",
+    "loadCredentials",
+    "searchTrains",
+    "runMacro",
+    "stopMacro",
+    "readLog",
+    "clearLog",
+  ];
+  if (!allowedActions.includes(message?.action)) {
     return false;
   }
 
@@ -27,10 +37,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         action: "saveConfig",
         configIni: message.configIni || "",
       });
-    } else if (message.action === "runMacro") {
+    } else if (message.action === "saveCredentials") {
       port.postMessage({
-        action: "run",
+        action: "saveCredentials",
+        login: message.login || {},
+        payment: message.payment || {},
       });
+    } else if (message.action === "loadCredentials") {
+      port.postMessage({ action: "loadCredentials" });
+    } else if (message.action === "searchTrains") {
+      port.postMessage({
+        action: "searchTrains",
+        login: message.login || {},
+        search: message.search || {},
+      });
+    } else if (message.action === "runMacro") {
+      port.postMessage({ action: "run" });
     } else if (message.action === "stopMacro") {
       port.postMessage({ action: "stop" });
     } else if (message.action === "readLog") {

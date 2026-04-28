@@ -1,1 +1,2 @@
 https://github.com/dhfhfk/korail2/archive/refs/heads/bypassDynapath.zip
+keyring>=25.5.0

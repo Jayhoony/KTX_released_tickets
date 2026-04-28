@@ -47,12 +47,27 @@ function Invoke-SystemPython {
     }
 }
 
+function Test-VenvPython {
+    if (!(Test-Path $VenvPython)) {
+        return $false
+    }
+
+    & $VenvPython --version *> $null
+    return ($LASTEXITCODE -eq 0)
+}
+
 if (!(Test-Path $ConfigPath)) {
     Copy-Item $ExampleConfigPath $ConfigPath
     Write-Host "config.ini was missing, so it was created from config.example.ini."
 }
 
-if (!(Test-Path $VenvPython)) {
+if (!(Test-VenvPython)) {
+    $VenvDir = Join-Path $ProjectRoot ".venv"
+    if (Test-Path $VenvDir) {
+        Write-Host "Virtual environment is broken. Recreating..."
+        Remove-Item -LiteralPath $VenvDir -Recurse -Force
+    }
+
     $PythonCommand = Get-SystemPython
     if ($null -eq $PythonCommand) {
         Write-Host "ERROR: Python was not found."

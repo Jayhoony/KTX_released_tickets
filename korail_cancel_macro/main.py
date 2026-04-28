@@ -23,6 +23,9 @@ from korail2 import (
     TrainType,
 )
 
+from .credential_storage import CredentialStorage
+from .payment import KorailPaymentError, pay_reservation_with_card
+
 
 TRAIN_TYPES = {
     "ALL": TrainType.ALL,
@@ -80,6 +83,7 @@ class MacroConfig:
     reserve_option: str
     try_waiting: bool
     include_waiting_list: bool
+    auto_payment: bool
 
 
 @dataclass(frozen=True)
@@ -163,6 +167,7 @@ def load_config(path: Path) -> AppConfig:
             reserve_option=reserve_option,
             try_waiting=parse_bool(macro.get("try_waiting", "false")),
             include_waiting_list=parse_bool(macro.get("include_waiting_list", "false")),
+            auto_payment=parse_bool(macro.get("auto_payment", "false")),
         ),
         notification=NotificationConfig(
             beep=parse_bool(notification.get("beep", "true")),
@@ -195,6 +200,21 @@ def validate_config(config: AppConfig) -> None:
 
 def ask_credentials(config: AppConfig, *, force_prompt: bool = False) -> AppConfig:
     noninteractive = parse_bool(os.environ.get("KORAIL_NONINTERACTIVE", "false"))
+
+    if not force_prompt and (not config.account.korail_id or not config.account.korail_pw):
+        saved_login = CredentialStorage.load_login()
+        if saved_login:
+            config = AppConfig(
+                account=AccountConfig(
+                    korail_id=config.account.korail_id or saved_login.username,
+                    korail_pw=config.account.korail_pw or saved_login.password,
+                ),
+                trip=config.trip,
+                passengers=config.passengers,
+                macro=config.macro,
+                notification=config.notification,
+            )
+
     if noninteractive and (force_prompt or not config.account.korail_id or not config.account.korail_pw):
         raise ValueError("GUI 실행에서는 코레일 ID와 비밀번호를 입력해야 합니다.")
 
@@ -396,7 +416,24 @@ def run(config: AppConfig) -> int:
                 notify(config.notification)
                 print("\n예약 성공:")
                 print(reservation)
-                print("결제/발권은 코레일 앱 또는 웹에서 구매기한 안에 직접 진행하세요.")
+                payment = CredentialStorage.load_payment()
+                if config.macro.auto_payment:
+                    if payment is None:
+                        print("자동결제가 켜져 있지만 저장된 결제정보가 없습니다.")
+                        print("구매기한 안에 코레일 앱 또는 웹에서 직접 결제하세요.")
+                    else:
+                        print("저장된 결제정보로 자동결제를 시도합니다...")
+                        try:
+                            if pay_reservation_with_card(korail, reservation, payment):
+                                print("자동결제 성공. 코레일 앱 또는 웹에서 발권 내역을 확인하세요.")
+                        except KorailPaymentError as exc:
+                            print(f"자동결제 실패: {exc}")
+                            print("구매기한 안에 코레일 앱 또는 웹에서 직접 결제하세요.")
+                elif payment:
+                    print("저장된 결제정보가 있습니다. 자동결제 옵션이 꺼져 있어 결제하지 않았습니다.")
+                    print("결제/발권은 코레일 앱 또는 웹에서 구매기한 안에 직접 진행하세요.")
+                else:
+                    print("결제/발권은 코레일 앱 또는 웹에서 구매기한 안에 직접 진행하세요.")
                 return 0
 
         if config.macro.max_attempts and attempt >= config.macro.max_attempts:
