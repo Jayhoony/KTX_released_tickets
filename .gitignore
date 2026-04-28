@@ -3,4 +3,7 @@ __pycache__/
 *.pyc
 config.ini
 *.log
-
+*.pid
+native_host/com.ktx_released_tickets.macro.json
+native_host/__pycache__/
+korail_cancel_macro/__pycache__/

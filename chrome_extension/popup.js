@@ -37,7 +37,7 @@ const defaults = {
   children: "0",
   toddlers: "0",
   seniors: "0",
-  intervalSeconds: "12",
+  intervalSeconds: "1",
   maxAttempts: "0",
   reserveWhenFound: true,
   includeWaitingList: false,
@@ -125,7 +125,7 @@ toddlers = ${numberValue(data.toddlers, "0")}
 seniors = ${numberValue(data.seniors, "0")}
 
 [macro]
-interval_seconds = ${numberValue(data.intervalSeconds, "12")}
+interval_seconds = ${numberValue(data.intervalSeconds, "1")}
 jitter_seconds = 3
 max_attempts = ${numberValue(data.maxAttempts, "0")}
 login_max_attempts = 3
@@ -210,4 +210,3 @@ async function init() {
 }
 
 init();
-
