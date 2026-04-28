@@ -127,14 +127,8 @@ def search_trains(message: dict) -> dict:
     except KorailError as exc:
         raise RuntimeError(str(exc)) from exc
 
-    earliest_time = (search.get("earliestTime") or "").strip()
-    latest_time = (search.get("latestTime") or "").strip()
     results = []
     for train in trains:
-        if earliest_time and train.dep_time < earliest_time:
-            continue
-        if latest_time and train.dep_time > latest_time:
-            continue
         general = bool(train.has_general_seat())
         special = bool(train.has_special_seat())
         waiting = bool(train.has_waiting_list())

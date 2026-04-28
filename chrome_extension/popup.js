@@ -15,8 +15,6 @@ const fields = [
   "time",
   "trainType",
   "reserveOption",
-  "earliestTime",
-  "latestTime",
   "trainNumbers",
   "adults",
   "children",
@@ -46,8 +44,6 @@ const defaults = {
   time: "09:00",
   trainType: "KTX",
   reserveOption: "GENERAL_ONLY",
-  earliestTime: "",
-  latestTime: "",
   trainNumbers: "",
   adults: "1",
   children: "0",
@@ -131,8 +127,6 @@ function syncTrainNumberField() {
 function buildIni(data) {
   const date = dateToIni(data.date || todayIso());
   const time = timeToIni(data.time || "09:00");
-  const earliestTime = timeToIni(data.earliestTime);
-  const latestTime = timeToIni(data.latestTime);
   const waiting = data.includeWaitingList ? "true" : "false";
   const writePlainLogin = !data.saveLoginSecure;
 
@@ -148,8 +142,6 @@ date = ${date}
 time = ${time}
 train_type = ${data.trainType || "KTX"}
 train_numbers = ${data.trainNumbers || ""}
-earliest_time = ${earliestTime}
-latest_time = ${latestTime}
 
 [passengers]
 adults = ${numberValue(data.adults, "1")}
@@ -334,8 +326,6 @@ async function searchTrains() {
       date: dateToIni(data.date),
       time: timeToIni(data.time),
       trainType: data.trainType,
-      earliestTime: timeToIni(data.earliestTime),
-      latestTime: timeToIni(data.latestTime),
       includeWaitingList: data.includeWaitingList,
       adults: numberValue(data.adults, "1"),
       children: numberValue(data.children, "0"),

@@ -61,8 +61,6 @@ class TripConfig:
     time: str
     train_type: str
     train_numbers: tuple[str, ...]
-    earliest_time: str
-    latest_time: str
 
 
 @dataclass(frozen=True)
@@ -149,8 +147,6 @@ def load_config(path: Path) -> AppConfig:
             time=trip.get("time", "000000").strip(),
             train_type=train_type,
             train_numbers=parse_csv(trip.get("train_numbers", "")),
-            earliest_time=trip.get("earliest_time", "").strip(),
-            latest_time=trip.get("latest_time", "").strip(),
         ),
         passengers=PassengerConfig(
             adults=passengers.getint("adults", 1),
@@ -300,10 +296,6 @@ def train_summary(train) -> str:
 
 def matches_train_filter(train, config: TripConfig) -> bool:
     if config.train_numbers and train.train_no not in config.train_numbers:
-        return False
-    if config.earliest_time and train.dep_time < config.earliest_time:
-        return False
-    if config.latest_time and train.dep_time > config.latest_time:
         return False
     return True
 
