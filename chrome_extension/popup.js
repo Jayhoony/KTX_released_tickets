@@ -161,6 +161,7 @@ async function downloadIni() {
 async function runMacro() {
   const data = readForm();
   await chrome.storage.local.set(data);
+  await chrome.runtime.sendMessage({ action: "clearLog" });
   const response = await chrome.runtime.sendMessage({
     action: "runMacro",
     configIni: buildIni(data),
@@ -173,12 +174,33 @@ async function runMacro() {
   alert(response?.error || "Native host가 설치되지 않았습니다. install_native_host.ps1을 먼저 실행하세요.");
 }
 
+async function refreshLog() {
+  const response = await chrome.runtime.sendMessage({ action: "readLog" });
+  const output = $("logOutput");
+  if (!response?.ok) {
+    output.textContent = response?.error || "로그를 읽지 못했습니다.";
+    return;
+  }
+
+  output.textContent = response.log || "아직 로그가 없습니다.";
+  output.scrollTop = output.scrollHeight;
+}
+
+async function clearLog() {
+  await chrome.runtime.sendMessage({ action: "clearLog" });
+  $("logOutput").textContent = "아직 로그가 없습니다.";
+}
+
 async function init() {
   const stored = await chrome.storage.local.get(fields);
   writeForm({ ...defaults, date: todayIso(), ...stored });
   $("saveState").addEventListener("click", saveState);
   $("downloadIni").addEventListener("click", downloadIni);
   $("runMacro").addEventListener("click", runMacro);
+  $("refreshLog").addEventListener("click", refreshLog);
+  $("clearLog").addEventListener("click", clearLog);
+  window.setInterval(refreshLog, 2500);
+  refreshLog();
 }
 
 init();

@@ -178,3 +178,51 @@ button.run {
 button.run:hover {
   background: #263244;
 }
+
+.log-panel {
+  margin-top: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #0f1720;
+  color: #dbe7ef;
+  overflow: hidden;
+}
+
+.log-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  border-bottom: 1px solid #26313c;
+  background: #17212b;
+}
+
+.log-actions strong {
+  font-size: 12px;
+}
+
+.log-actions div {
+  display: flex;
+  gap: 6px;
+}
+
+.log-actions button {
+  height: 26px;
+  padding: 0 8px;
+  border-color: #3b4a58;
+  background: #22303c;
+  color: #eef6fb;
+  font-size: 12px;
+}
+
+#logOutput {
+  height: 150px;
+  margin: 0;
+  padding: 9px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 11px;
+  line-height: 1.45;
+}

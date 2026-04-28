@@ -1,3 +1,7 @@
+param(
+    [switch]$NonInteractive
+)
+
 $ErrorActionPreference = "Stop"
 
 $ProjectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -61,4 +65,6 @@ Write-Host "Running macro..."
 & $VenvPython -m korail_cancel_macro.main --config config.ini
 
 Write-Host ""
-Read-Host "Press Enter to close"
+if (!$NonInteractive) {
+    Read-Host "Press Enter to close"
+}

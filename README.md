@@ -81,6 +81,6 @@ cd C:\Users\SJH\Documents\GitHub\KTX_released_tickets
 .\install_native_host.ps1 -ExtensionId "복사한_확장_ID"
 ```
 
-이후 확장 팝업에서 `매크로 실행`을 누르면 현재 팝업 값을 `config.ini`에 저장한 뒤 새 PowerShell 창을 열어 매크로를 실행합니다. 처음 실행 시 가상환경과 패키지를 자동으로 확인합니다.
+이후 확장 팝업에서 `매크로 실행`을 누르면 현재 팝업 값을 `config.ini`에 저장한 뒤 백그라운드에서 매크로를 실행합니다. 실행 로그는 팝업 아래의 `실행 로그` 영역에 표시됩니다. 처음 실행 시 가상환경과 패키지를 자동으로 확인합니다.
 
 확장 없이 바로 실행하려면 `run_macro.bat`을 더블클릭해도 됩니다.
