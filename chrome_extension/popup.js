@@ -34,6 +34,7 @@ const fields = [
   "emailTo",
   "emailUseTls",
   "saveEmailSecure",
+  "emailPasswordSaved",
 ];
 
 const defaults = {
@@ -72,6 +73,7 @@ const defaults = {
   emailTo: "",
   emailUseTls: true,
   saveEmailSecure: true,
+  emailPasswordSaved: false,
 };
 
 const $ = (id) => document.getElementById(id);
@@ -95,6 +97,10 @@ function readForm() {
   const data = {};
   for (const field of fields) {
     const element = $(field);
+    if (element.type === "hidden") {
+      data[field] = element.value;
+      continue;
+    }
     data[field] = element.type === "checkbox" ? element.checked : element.value.trim();
   }
   return data;
@@ -110,6 +116,7 @@ function writeForm(data) {
       element.value = value;
     }
   }
+  updateEmailPasswordStatus();
 }
 
 function digitsOnly(value) {
@@ -140,6 +147,23 @@ function selectedTrainNumbers() {
 function syncTrainNumberField() {
   const selected = [...document.querySelectorAll(".train-check:checked")].map((input) => input.value);
   $("trainNumbers").value = selected.join(",");
+}
+
+function updateEmailPasswordStatus() {
+  const note = $("emailPasswordStatus");
+  const hasSaved = $("emailPasswordSaved").value === "true";
+  const hasPending = Boolean($("emailPassword").value.trim());
+
+  note.classList.toggle("is-saved", hasSaved && !hasPending);
+  note.classList.toggle("is-pending", hasPending);
+
+  if (hasPending) {
+    note.textContent = "새 비밀번호 입력됨";
+  } else if (hasSaved) {
+    note.textContent = "저장됨";
+  } else {
+    note.textContent = "저장 안 됨";
+  }
 }
 
 function buildIni(data) {
@@ -222,6 +246,7 @@ function buildCredentialPayload(data) {
       ? {
           save: Boolean(data.emailPassword),
           password: data.emailPassword,
+          keep: !data.emailPassword && data.emailPasswordSaved,
         }
       : { delete: true },
   };
@@ -255,7 +280,7 @@ function validateSensitiveSettings(data) {
       alert("메일 알림을 쓰려면 SMTP 서버, 포트, 아이디, 받는 주소를 입력해야 합니다.");
       return false;
     }
-    if (data.saveEmailSecure && !data.emailPassword) {
+    if (data.saveEmailSecure && !data.emailPassword && !data.emailPasswordSaved) {
       setStatus("확인필요");
       alert("메일 비밀번호 보안 저장을 켠 상태에서는 SMTP 비밀번호를 입력해야 합니다.");
       return false;
@@ -289,7 +314,14 @@ async function saveConfig() {
     cardExpire: "",
     cardValidation: "",
     emailPassword: data.saveEmailSecure ? "" : data.emailPassword,
+    emailPasswordSaved: data.saveEmailSecure ? Boolean(data.emailPassword || data.emailPasswordSaved) : false,
   });
+  $("emailPasswordSaved").value =
+    data.saveEmailSecure && (data.emailPassword || data.emailPasswordSaved) ? "true" : "false";
+  if (data.saveEmailSecure) {
+    $("emailPassword").value = "";
+  }
+  updateEmailPasswordStatus();
 
   if (!(await saveCredentials(data))) return false;
 
@@ -451,8 +483,8 @@ async function loadSecureCredentials() {
     loaded.savePaymentSecure = true;
   }
   if (response.email) {
-    loaded.emailPassword = response.email.password || "";
     loaded.saveEmailSecure = true;
+    loaded.emailPasswordSaved = Boolean(response.email.password);
   }
   return loaded;
 }
@@ -471,6 +503,8 @@ async function init() {
   writeForm({ ...defaults, date: todayIso(), ...stored, ...secure });
   wireDigitFilters();
   $("saveConfig").addEventListener("click", saveConfig);
+  $("emailPassword").addEventListener("input", updateEmailPasswordStatus);
+  $("saveEmailSecure").addEventListener("change", updateEmailPasswordStatus);
   $("searchTrains").addEventListener("click", searchTrains);
   $("runMacro").addEventListener("click", runMacro);
   $("stopMacro").addEventListener("click", stopMacro);
