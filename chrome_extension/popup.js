@@ -323,7 +323,7 @@ function renderTrainList(trains) {
     checkbox.type = "checkbox";
     checkbox.className = "train-check";
     checkbox.value = train.trainNo;
-    checkbox.checked = selected.size ? selected.has(train.trainNo) : train.available;
+    checkbox.checked = selected.size > 0 && selected.has(train.trainNo);
     checkbox.addEventListener("change", syncTrainNumberField);
 
     const main = document.createElement("span");
