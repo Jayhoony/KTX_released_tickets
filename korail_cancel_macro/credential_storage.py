@@ -22,6 +22,11 @@ class PaymentCredentials:
     is_corporate: bool
 
 
+@dataclass(frozen=True)
+class EmailCredentials:
+    password: str
+
+
 class CredentialStorage:
     """Store sensitive macro credentials in the OS credential vault."""
 
@@ -34,6 +39,7 @@ class CredentialStorage:
     KEY_KTX_CARD_EXPIRE = "ktx_card_expire"
     KEY_KTX_CARD_VALIDATION = "ktx_card_validation"
     KEY_KTX_CARD_CORPORATE = "ktx_card_corporate"
+    KEY_KTX_EMAIL_PASSWORD = "ktx_email_password"
 
     @staticmethod
     def _set(key: str, value: str) -> None:
@@ -107,4 +113,19 @@ class CredentialStorage:
         CredentialStorage._delete(CredentialStorage.KEY_KTX_CARD_EXPIRE)
         CredentialStorage._delete(CredentialStorage.KEY_KTX_CARD_VALIDATION)
         CredentialStorage._delete(CredentialStorage.KEY_KTX_CARD_CORPORATE)
+
+    @staticmethod
+    def save_email(password: str) -> None:
+        CredentialStorage._set(CredentialStorage.KEY_KTX_EMAIL_PASSWORD, password)
+
+    @staticmethod
+    def load_email() -> Optional[EmailCredentials]:
+        password = CredentialStorage._get(CredentialStorage.KEY_KTX_EMAIL_PASSWORD)
+        if password:
+            return EmailCredentials(password=password)
+        return None
+
+    @staticmethod
+    def delete_email() -> None:
+        CredentialStorage._delete(CredentialStorage.KEY_KTX_EMAIL_PASSWORD)
 

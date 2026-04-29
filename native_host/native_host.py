@@ -281,6 +281,7 @@ def main() -> int:
             CredentialStorage = credential_storage()
             login = message.get("login") or {}
             payment = message.get("payment") or {}
+            email = message.get("email") or {}
 
             if login.get("save"):
                 username = login.get("username", "")
@@ -300,6 +301,13 @@ def main() -> int:
                 )
             elif payment.get("delete"):
                 CredentialStorage.delete_payment()
+
+            if email.get("save"):
+                password = email.get("password", "")
+                if password:
+                    CredentialStorage.save_email(password)
+            elif email.get("delete"):
+                CredentialStorage.delete_email()
         except Exception as exc:
             send_message({"ok": False, "error": str(exc)})
             return 0
@@ -312,9 +320,11 @@ def main() -> int:
             CredentialStorage = credential_storage()
             login = CredentialStorage.load_login()
             payment = CredentialStorage.load_payment()
+            email = CredentialStorage.load_email()
         except Exception:
             login = None
             payment = None
+            email = None
         send_message(
             {
                 "ok": True,
@@ -332,6 +342,11 @@ def main() -> int:
                     "isCorporate": payment.is_corporate,
                 }
                 if payment
+                else None,
+                "email": {
+                    "password": email.password,
+                }
+                if email
                 else None,
             }
         )

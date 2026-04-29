@@ -25,6 +25,15 @@ const fields = [
   "reserveWhenFound",
   "includeWaitingList",
   "beep",
+  "emailEnabled",
+  "emailHost",
+  "emailPort",
+  "emailUsername",
+  "emailPassword",
+  "emailFrom",
+  "emailTo",
+  "emailUseTls",
+  "saveEmailSecure",
 ];
 
 const defaults = {
@@ -54,6 +63,15 @@ const defaults = {
   reserveWhenFound: true,
   includeWaitingList: false,
   beep: true,
+  emailEnabled: false,
+  emailHost: "smtp.gmail.com",
+  emailPort: "587",
+  emailUsername: "",
+  emailPassword: "",
+  emailFrom: "",
+  emailTo: "",
+  emailUseTls: true,
+  saveEmailSecure: true,
 };
 
 const $ = (id) => document.getElementById(id);
@@ -129,6 +147,7 @@ function buildIni(data) {
   const time = timeToIni(data.time || "09:00");
   const waiting = data.includeWaitingList ? "true" : "false";
   const writePlainLogin = !data.saveLoginSecure;
+  const writePlainEmail = !data.saveEmailSecure;
 
   return `[account]
 ; 보안 저장을 켜면 계정정보는 Windows 자격 증명 저장소에 저장되고 ini에는 남지 않습니다.
@@ -162,6 +181,16 @@ auto_payment = ${data.autoPayment ? "true" : "false"}
 
 [notification]
 beep = ${data.beep ? "true" : "false"}
+
+[email]
+enabled = ${data.emailEnabled ? "true" : "false"}
+smtp_host = ${data.emailHost || ""}
+smtp_port = ${numberValue(data.emailPort, "587")}
+username = ${data.emailUsername || ""}
+password = ${writePlainEmail ? data.emailPassword || "" : ""}
+from_addr = ${data.emailFrom || data.emailUsername || ""}
+to_addr = ${data.emailTo || ""}
+use_tls = ${data.emailUseTls ? "true" : "false"}
 `;
 }
 
@@ -189,6 +218,12 @@ function buildCredentialPayload(data) {
           isCorporate: data.cardCorporate,
         }
       : { delete: true },
+    email: data.saveEmailSecure
+      ? {
+          save: Boolean(data.emailPassword),
+          password: data.emailPassword,
+        }
+      : { delete: true },
   };
 }
 
@@ -213,6 +248,18 @@ function validateSensitiveSettings(data) {
     setStatus("확인필요");
     alert("자동결제를 쓰려면 결제정보 보안 저장을 켜야 합니다.");
     return false;
+  }
+  if (data.emailEnabled) {
+    if (!data.emailHost || !data.emailPort || !data.emailUsername || !data.emailTo) {
+      setStatus("확인필요");
+      alert("메일 알림을 쓰려면 SMTP 서버, 포트, 아이디, 받는 주소를 입력해야 합니다.");
+      return false;
+    }
+    if (data.saveEmailSecure && !data.emailPassword) {
+      setStatus("확인필요");
+      alert("메일 비밀번호 보안 저장을 켠 상태에서는 SMTP 비밀번호를 입력해야 합니다.");
+      return false;
+    }
   }
   return true;
 }
@@ -241,6 +288,7 @@ async function saveConfig() {
     cardPassword: "",
     cardExpire: "",
     cardValidation: "",
+    emailPassword: data.saveEmailSecure ? "" : data.emailPassword,
   });
 
   if (!(await saveCredentials(data))) return false;
@@ -401,6 +449,10 @@ async function loadSecureCredentials() {
     loaded.cardValidation = response.payment.validationNumber || "";
     loaded.cardCorporate = Boolean(response.payment.isCorporate);
     loaded.savePaymentSecure = true;
+  }
+  if (response.email) {
+    loaded.emailPassword = response.email.password || "";
+    loaded.saveEmailSecure = true;
   }
   return loaded;
 }

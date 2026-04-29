@@ -172,6 +172,54 @@
         </label>
       </section>
 
+      <section class="secure-box">
+        <div class="section-head">
+          <strong>메일 알림</strong>
+          <label class="inline-check">
+            <input id="emailEnabled" type="checkbox">
+            사용
+          </label>
+        </div>
+        <section class="grid two">
+          <label>
+            SMTP 서버
+            <input id="emailHost" placeholder="smtp.gmail.com">
+          </label>
+          <label>
+            포트
+            <input id="emailPort" type="number" min="1" max="65535" value="587">
+          </label>
+        </section>
+        <label>
+          SMTP 아이디
+          <input id="emailUsername" autocomplete="username" placeholder="example@gmail.com">
+        </label>
+        <label>
+          SMTP 비밀번호
+          <input id="emailPassword" type="password" autocomplete="current-password" placeholder="앱 비밀번호">
+        </label>
+        <section class="grid two">
+          <label>
+            보내는 주소
+            <input id="emailFrom" placeholder="example@gmail.com">
+          </label>
+          <label>
+            받는 주소
+            <input id="emailTo" placeholder="notify@example.com">
+          </label>
+        </section>
+        <div class="toggles">
+          <label>
+            <input id="emailUseTls" type="checkbox" checked>
+            TLS
+          </label>
+          <label>
+            <input id="saveEmailSecure" type="checkbox" checked>
+            비밀번호 보안 저장
+          </label>
+        </div>
+      </section>
+
       <div class="actions">
         <button id="saveConfig" type="button" class="primary">설정 저장</button>
         <button id="runMacro" type="button" class="run">실행</button>

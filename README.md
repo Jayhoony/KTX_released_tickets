@@ -51,6 +51,7 @@ notepad config.ini
 - `reserve_option`: `GENERAL_SPECIAL`, `GENERAL_ONLY`, `GENERAL_FIRST`, `SPECIAL_ONLY`, `SPECIAL_FIRST`
 - `interval_seconds = 1`, `jitter_seconds = 3`: 1~4초 사이 랜덤 간격으로 다시 조회합니다.
 - `auto_payment`: `true`이면 예약 성공 직후 저장된 결제정보로 자동결제를 시도합니다.
+- `[email]`: `enabled = true`로 켜면 예약 성공과 자동결제 성공 시 SMTP 메일 알림을 보냅니다. Gmail은 계정 비밀번호가 아니라 앱 비밀번호를 사용하세요.
 
 ## 실행
 
@@ -67,7 +68,7 @@ python -m korail_cancel_macro.main --config config.ini
 3. `압축해제된 확장 프로그램을 로드합니다`를 누릅니다.
 4. 이 프로젝트의 `chrome_extension` 폴더를 선택합니다.
 
-팝업에서 출발/도착, 날짜, 시간, 승객, 반복 간격, 로그인, 결제정보를 입력할 수 있습니다. `열차 조회`를 누르면 현재 날짜/시간 조건으로 열차 목록을 불러오고, 체크한 열차번호만 `train_numbers`에 반영됩니다. `설정 저장`은 `config.ini` 저장과 보안 저장소 저장을 한 번에 처리합니다. 자동결제를 쓰려면 `결제정보 보안 저장`과 `예약 성공 시 자동결제`를 함께 켜야 합니다.
+팝업에서 출발/도착, 날짜, 시간, 승객, 반복 간격, 로그인, 결제정보, 메일 알림을 입력할 수 있습니다. `열차 조회`를 누르면 현재 날짜/시간 조건으로 열차 목록을 불러오고, 체크한 열차번호만 `train_numbers`에 반영됩니다. `설정 저장`은 `config.ini` 저장과 보안 저장소 저장을 한 번에 처리합니다. 자동결제를 쓰려면 `결제정보 보안 저장`과 `예약 성공 시 자동결제`를 함께 켜야 합니다. 메일 알림의 SMTP 비밀번호도 기본값으로 Windows 자격 증명 저장소에 저장됩니다.
 
 ## Native Host 등록
 

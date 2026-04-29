@@ -5,9 +5,11 @@ import configparser
 import getpass
 import os
 import random
+import smtplib
 import sys
 import time
 from dataclasses import dataclass
+from email.message import EmailMessage
 from pathlib import Path
 
 from korail2 import (
@@ -92,12 +94,25 @@ class NotificationConfig:
 
 
 @dataclass(frozen=True)
+class EmailConfig:
+    enabled: bool
+    smtp_host: str
+    smtp_port: int
+    username: str
+    password: str
+    from_addr: str
+    to_addr: str
+    use_tls: bool
+
+
+@dataclass(frozen=True)
 class AppConfig:
     account: AccountConfig
     trip: TripConfig
     passengers: PassengerConfig
     macro: MacroConfig
     notification: NotificationConfig
+    email: EmailConfig
 
 
 def parse_bool(value: str) -> bool:
@@ -129,6 +144,7 @@ def load_config(path: Path) -> AppConfig:
     passengers = require_section(parser, "passengers")
     macro = require_section(parser, "macro")
     notification = require_section(parser, "notification")
+    email = parser["email"] if "email" in parser else {}
 
     train_type = trip.get("train_type", "KTX").strip().upper()
     reserve_option = macro.get("reserve_option", "GENERAL_ONLY").strip().upper()
@@ -169,6 +185,16 @@ def load_config(path: Path) -> AppConfig:
         ),
         notification=NotificationConfig(
             beep=parse_bool(notification.get("beep", "true")),
+        ),
+        email=EmailConfig(
+            enabled=parse_bool(email.get("enabled", "false")),
+            smtp_host=email.get("smtp_host", "").strip(),
+            smtp_port=int(email.get("smtp_port", "587")),
+            username=email.get("username", "").strip(),
+            password=env_or_config(email, "password", "KORAIL_EMAIL_PASSWORD"),
+            from_addr=email.get("from_addr", "").strip(),
+            to_addr=email.get("to_addr", "").strip(),
+            use_tls=parse_bool(email.get("use_tls", "true")),
         ),
     )
 
@@ -211,6 +237,7 @@ def ask_credentials(config: AppConfig, *, force_prompt: bool = False) -> AppConf
                 passengers=config.passengers,
                 macro=config.macro,
                 notification=config.notification,
+                email=config.email,
             )
 
     if noninteractive and (force_prompt or not config.account.korail_id or not config.account.korail_pw):
@@ -229,6 +256,7 @@ def ask_credentials(config: AppConfig, *, force_prompt: bool = False) -> AppConf
         passengers=config.passengers,
         macro=config.macro,
         notification=config.notification,
+        email=config.email,
     )
 
 
@@ -323,6 +351,40 @@ def notify(config: NotificationConfig) -> None:
         print("\a", end="", flush=True)
 
 
+def email_password(config: EmailConfig) -> str:
+    if config.password:
+        return config.password
+    saved_email = CredentialStorage.load_email()
+    return saved_email.password if saved_email else ""
+
+
+def send_email_notification(config: EmailConfig, subject: str, body: str) -> None:
+    if not config.enabled:
+        return
+
+    password = email_password(config)
+    from_addr = config.from_addr or config.username
+    if not all([config.smtp_host, config.smtp_port, config.username, password, from_addr, config.to_addr]):
+        print("메일 알림 설정이 부족해서 메일을 보내지 않았습니다.")
+        return
+
+    message = EmailMessage()
+    message["Subject"] = subject
+    message["From"] = from_addr
+    message["To"] = config.to_addr
+    message.set_content(body)
+
+    try:
+        with smtplib.SMTP(config.smtp_host, config.smtp_port, timeout=20) as smtp:
+            if config.use_tls:
+                smtp.starttls()
+            smtp.login(config.username, password)
+            smtp.send_message(message)
+        print("메일 알림을 보냈습니다.")
+    except Exception as exc:
+        print(f"메일 알림 실패: {exc}")
+
+
 def sleep_between_attempts(config: MacroConfig) -> None:
     jitter = random.uniform(0, config.jitter_seconds) if config.jitter_seconds > 0 else 0
     delay = config.interval_seconds + jitter
@@ -412,6 +474,11 @@ def run(config: AppConfig) -> int:
                 notify(config.notification)
                 print("\n예약 성공:")
                 print(reservation)
+                send_email_notification(
+                    config.email,
+                    "코레일 예약 성공",
+                    f"예약이 완료되었습니다.\n\n{train_summary(candidate)}\n\n{reservation}",
+                )
                 payment = CredentialStorage.load_payment()
                 if config.macro.auto_payment:
                     if payment is None:
@@ -422,6 +489,11 @@ def run(config: AppConfig) -> int:
                         try:
                             if pay_reservation_with_card(korail, reservation, payment):
                                 print("자동결제 성공. 코레일 앱 또는 웹에서 발권 내역을 확인하세요.")
+                                send_email_notification(
+                                    config.email,
+                                    "코레일 자동결제 성공",
+                                    f"자동결제가 완료되었습니다.\n\n{train_summary(candidate)}\n\n{reservation}",
+                                )
                         except KorailPaymentError as exc:
                             print(f"자동결제 실패: {exc}")
                             print("구매기한 안에 코레일 앱 또는 웹에서 직접 결제하세요.")
