@@ -306,6 +306,8 @@ async function saveConfig() {
   const data = readForm();
   if (!validateSensitiveSettings(data)) return false;
 
+  if (!(await saveCredentials(data))) return false;
+
   await chrome.storage.local.set({
     ...data,
     korailPassword: data.saveLoginSecure ? "" : data.korailPassword,
@@ -322,8 +324,6 @@ async function saveConfig() {
     $("emailPassword").value = "";
   }
   updateEmailPasswordStatus();
-
-  if (!(await saveCredentials(data))) return false;
 
   const response = await chrome.runtime.sendMessage({
     action: "saveConfig",
@@ -468,7 +468,10 @@ async function loadSecureCredentials() {
   const response = await chrome.runtime.sendMessage({ action: "loadCredentials" });
   if (!response?.ok) return {};
 
-  const loaded = {};
+  const loaded = {
+    emailPassword: "",
+    emailPasswordSaved: false,
+  };
   if (response.login) {
     loaded.korailId = response.login.username || "";
     loaded.korailPassword = response.login.password || "";

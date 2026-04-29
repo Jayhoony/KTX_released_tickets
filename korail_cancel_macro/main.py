@@ -365,7 +365,20 @@ def send_email_notification(config: EmailConfig, subject: str, body: str) -> Non
     password = email_password(config)
     from_addr = config.from_addr or config.username
     if not all([config.smtp_host, config.smtp_port, config.username, password, from_addr, config.to_addr]):
-        print("메일 알림 설정이 부족해서 메일을 보내지 않았습니다.")
+        missing = []
+        if not config.smtp_host:
+            missing.append("smtp_host")
+        if not config.smtp_port:
+            missing.append("smtp_port")
+        if not config.username:
+            missing.append("username")
+        if not password:
+            missing.append("password")
+        if not from_addr:
+            missing.append("from_addr")
+        if not config.to_addr:
+            missing.append("to_addr")
+        print(f"메일 알림 설정이 부족해서 메일을 보내지 않았습니다: {', '.join(missing)}")
         return
 
     message = EmailMessage()
