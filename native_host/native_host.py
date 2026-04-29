@@ -312,7 +312,12 @@ def main() -> int:
             send_message({"ok": False, "error": str(exc)})
             return 0
 
-        send_message({"ok": True})
+        saved_email = None
+        try:
+            saved_email = CredentialStorage.load_email()
+        except Exception:
+            saved_email = None
+        send_message({"ok": True, "emailSaved": bool(saved_email and saved_email.password)})
         return 0
 
     if message.get("action") == "loadCredentials":

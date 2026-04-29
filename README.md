@@ -48,7 +48,7 @@ notepad config.ini
 - `time`: `hhmmss`
 - `train_type`: `KTX`, `ALL`, `ITX_SAEMAEUL`, `MUGUNGHWA` 등
 - `train_numbers`: 특정 열차번호만 예약하려면 쉼표로 입력합니다.
-- `reserve_option`: `GENERAL_SPECIAL`, `GENERAL_ONLY`, `GENERAL_FIRST`, `SPECIAL_ONLY`, `SPECIAL_FIRST`
+- `reserve_option`: `GENERAL_ONLY`, `GENERAL_FIRST`, `SPECIAL_ONLY`, `SPECIAL_FIRST`
 - `interval_seconds = 1`, `jitter_seconds = 3`: 1~4초 사이 랜덤 간격으로 다시 조회합니다.
 - `auto_payment`: `true`이면 예약 성공 직후 저장된 결제정보로 자동결제를 시도합니다.
 - `[email]`: `enabled = true`로 켜면 예약 성공과 자동결제 성공 시 SMTP 메일 알림을 보냅니다. Gmail은 계정 비밀번호가 아니라 앱 비밀번호를 사용하세요.

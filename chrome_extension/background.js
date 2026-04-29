@@ -90,6 +90,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         action: "saveCredentials",
         login: message.login || {},
         payment: message.payment || {},
+        email: message.email || {},
       });
     } else if (message.action === "loadCredentials") {
       port.postMessage({ action: "loadCredentials" });

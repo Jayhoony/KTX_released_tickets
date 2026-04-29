@@ -53,7 +53,7 @@ const defaults = {
   date: "",
   time: "09:00",
   trainType: "KTX",
-  reserveOption: "GENERAL_SPECIAL",
+  reserveOption: "GENERAL_FIRST",
   trainNumbers: "",
   adults: "1",
   children: "0",
@@ -98,7 +98,7 @@ function readForm() {
   for (const field of fields) {
     const element = $(field);
     if (element.type === "hidden") {
-      data[field] = element.value;
+      data[field] = element.value === "true";
       continue;
     }
     data[field] = element.type === "checkbox" ? element.checked : element.value.trim();
@@ -198,7 +198,7 @@ jitter_seconds = 3
 max_attempts = ${numberValue(data.maxAttempts, "0")}
 login_max_attempts = 3
 reserve_when_found = ${data.reserveWhenFound ? "true" : "false"}
-reserve_option = ${data.reserveOption || "GENERAL_SPECIAL"}
+reserve_option = ${data.reserveOption || "GENERAL_FIRST"}
 include_waiting_list = ${waiting}
 try_waiting = ${waiting}
 auto_payment = ${data.autoPayment ? "true" : "false"}
@@ -299,14 +299,22 @@ async function saveCredentials(data) {
     alert(response?.error || "보안 저장에 실패했습니다.");
     return false;
   }
-  return true;
+  return response;
 }
 
 async function saveConfig() {
   const data = readForm();
   if (!validateSensitiveSettings(data)) return false;
 
-  if (!(await saveCredentials(data))) return false;
+  const credentialResponse = await saveCredentials(data);
+  if (!credentialResponse) return false;
+  if (data.emailEnabled && data.saveEmailSecure && !credentialResponse.emailSaved) {
+    setStatus("확인필요");
+    alert("SMTP 비밀번호가 보안 저장소에 저장되지 않았습니다. 앱 비밀번호를 다시 입력하고 저장하세요.");
+    $("emailPasswordSaved").value = "false";
+    updateEmailPasswordStatus();
+    return false;
+  }
 
   await chrome.storage.local.set({
     ...data,
@@ -316,10 +324,9 @@ async function saveConfig() {
     cardExpire: "",
     cardValidation: "",
     emailPassword: data.saveEmailSecure ? "" : data.emailPassword,
-    emailPasswordSaved: data.saveEmailSecure ? Boolean(data.emailPassword || data.emailPasswordSaved) : false,
+    emailPasswordSaved: data.saveEmailSecure ? Boolean(credentialResponse.emailSaved) : false,
   });
-  $("emailPasswordSaved").value =
-    data.saveEmailSecure && (data.emailPassword || data.emailPasswordSaved) ? "true" : "false";
+  $("emailPasswordSaved").value = data.saveEmailSecure && credentialResponse.emailSaved ? "true" : "false";
   if (data.saveEmailSecure) {
     $("emailPassword").value = "";
   }
