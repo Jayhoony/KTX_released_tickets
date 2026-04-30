@@ -4,6 +4,7 @@ __pycache__/
 config.ini
 *.log
 *.pid
+dist/
 native_host/com.ktx_released_tickets.macro.json
 native_host/__pycache__/
 korail_cancel_macro/__pycache__/

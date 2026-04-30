@@ -98,7 +98,7 @@ function readForm() {
   for (const field of fields) {
     const element = $(field);
     if (element.type === "hidden") {
-      data[field] = element.value === "true";
+      data[field] = field === "emailPasswordSaved" ? element.value === "true" : element.value;
       continue;
     }
     data[field] = element.type === "checkbox" ? element.checked : element.value.trim();
@@ -147,6 +147,20 @@ function selectedTrainNumbers() {
 function syncTrainNumberField() {
   const selected = [...document.querySelectorAll(".train-check:checked")].map((input) => input.value);
   $("trainNumbers").value = selected.join(",");
+}
+
+function hasRenderedTrainChoices() {
+  return document.querySelectorAll(".train-check").length > 0;
+}
+
+function validateTrainSelectionForRun() {
+  syncTrainNumberField();
+  if (hasRenderedTrainChoices() && !selectedTrainNumbers().length) {
+    setStatus("확인필요");
+    alert("열차 조회 목록에서 실행할 열차를 하나 이상 체크하세요.");
+    return false;
+  }
+  return true;
 }
 
 function updateEmailPasswordStatus() {
@@ -430,6 +444,7 @@ async function searchTrains() {
 }
 
 async function runMacro() {
+  if (!validateTrainSelectionForRun()) return;
   const saved = await saveConfig();
   if (!saved) return;
   await chrome.runtime.sendMessage({ action: "clearLog" });

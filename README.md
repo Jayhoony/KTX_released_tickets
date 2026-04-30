@@ -82,6 +82,7 @@ powershell -ExecutionPolicy Bypass -File "C:\Users\사용자명\Documents\GitHub
 팝업에서 출발/도착, 날짜, 시간, 승객, 반복 간격, 로그인, 결제정보, 메일 알림을 입력할 수 있습니다.
 
 - `열차 조회`: 현재 조건으로 열차 목록을 불러오고, 체크한 열차번호만 예약 대상에 반영합니다.
+- 조회 목록이 표시된 상태에서 아무 열차도 체크하지 않으면 `실행`이 시작되지 않습니다.
 - `설정 저장`: `config.ini` 저장과 Windows 자격 증명 저장소 저장을 한 번에 처리합니다.
 - `실행`: 저장된 설정으로 Python 매크로를 실행합니다.
 - `멈춤`: 실행 중인 매크로를 중지합니다.
@@ -139,3 +140,4 @@ powershell -ExecutionPolicy Bypass -File .\stop_all_macro.ps1
 - `macro.pid`
 - `native_host/com.ktx_released_tickets.macro.json`
 - `__pycache__/`
+- `dist/`
